@@ -12,3 +12,6 @@ A RESTful web-api service which contains all the basic CRUD APIs for any book-se
 ### Technologies Used :- 
 1. Go 
 2. Gin Web Framework
+
+### API Documentation :- 
+https://documenter.getpostman.com/view/17373422/2s93eYUBmF
