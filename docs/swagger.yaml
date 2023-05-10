@@ -1,0 +1,10 @@
+basePath: /api
+host: localhost:3000
+info:
+  contact: {}
+  description: A Book-Service API which contains all the basic CRUD functionality
+    for any book-service application using Go and Gin Framework.
+  title: Book Service API
+  version: v1.0.0
+paths: {}
+swagger: "2.0"

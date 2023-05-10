@@ -1,13 +1,13 @@
 FROM golang:1.19
 
-WORKDIR /book-service
+RUN mkdir /build
 
-COPY go.mod go.sum ./
+WORKDIR /build
 
-COPY *.go ./
+COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /docker-gs-ping
+RUN go get -u github.com/gin-gonic/gin
 
-EXPOSE 8000
+EXPOSE 3000
 
-CMD ["/docker-gs-ping"]
+CMD ["go", "run", "main.go"]

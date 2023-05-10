@@ -1,0 +1,12 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A Book-Service API which contains all the basic CRUD functionality for any book-service application using Go and Gin Framework.",
+        "title": "Book Service API",
+        "contact": {},
+        "version": "v1.0.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/api",
+    "paths": {}
+}
