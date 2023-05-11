@@ -14,19 +14,17 @@ A RESTful web-api service which contains all the basic CRUD APIs for any book-se
 2. Gin Web Framework
 
 ### Steps to run this application on local machine :- 
-###### STEP 1: Open git bash or git CLI in your machine
+STEP 1: Open git bash or git CLI in your machine
 
-###### STEP 2: Clone this repository using command - 
+STEP 2: Clone this repository using command - 
 ``` git clone https://github.com/HS831/book-service.git```
         
-###### STEP 3: Open the project folder or directory in VS Code or any other editor.
+STEP 3: Open the project folder or directory in VS Code or any other editor.
 
-###### STEP 3: Open the VS code terminal and install all the dependencies using command-
-    
+STEP 3: Open the VS code terminal and install all the dependencies using command-
 ``` go get . ```
         
-###### STEP 4: Finally, run the command -
-
+STEP 4: Finally, run the command -
 ``` go run main.go ```
 
 Your Application will be up and running on the http://localhost:3000 server.
