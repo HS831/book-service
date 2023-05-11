@@ -1,23 +1,40 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	_ "main/docs"
+
+	"main/Config"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	_ "github.com/go-sql-driver/mysql"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type book struct {
-	ID string
-	Title string
-	Author string
-	Price string
+	ID 		string 
+	Title 	string
+	Author 	string			
+	Price 	string			
 }
 
-var books = []book {
-	{ID: "1", Title: "In Search of Lost Time", Author: "Marcel Proust", Price: "$399.90"},
-	{ID: "2", Title: "The Castle", Author: "Franz Kafka", Price: "$145.98"},
+// var books = []book {
+// 	{ID: "1", Title: "In Search of Lost Time", Author: "Marcel Proust", Price: "$399.90"},
+// 	{ID: "2", Title: "The Castle", Author: "Franz Kafka", Price: "$145.98"},
+// }
+var err error
+
+func connectDB() {
+	Config.DB, err = gorm.Open("mysql", Config.DbURL(Config.BuildDB())) 
+	if err != nil {
+		fmt.Println("Status: ", err)
+	}
+
+	Config.DB.AutoMigrate(&book{})
+
 }
 
 // @title 			Book Service API
@@ -25,21 +42,24 @@ var books = []book {
 // @description		A Book-Service API which contains all the basic CRUD functionality for any book-service application using Go and Gin Framework.
 
 // @host			localhost:3000
-// @BasePath 		/api
-// @Tags			/books
+
 func main () {
+	connectDB()
+
 	router := gin.Default()
 
-	// adding swagger
+	// add swagger
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.GET("/books", getAllBooks)
 	router.GET("/books/:id", getBookById)
 	router.POST("/books", postBooks)
-	router.PATCH("/books/:id", patchBooks)
-	router.DELETE("books/:id", deleteBookById)
+	router.PUT("/books/:id", patchBooks)
+	router.DELETE("/books/:id", deleteBookById)
 
 	router.Run("localhost:3000")
+
+	defer Config.DB.Close()
 }
 
 // GetAllBooks 		is a swagger annotation for the GET request to fetch all the books from the server.
@@ -51,11 +71,16 @@ func main () {
 // @Failure 		404 {object} gin.H
 // @Failure 		500 {object} gin.H
 // @Router 			/books [get]
-// @OperationID 	getAllBooks
 
 
 func getAllBooks (r *gin.Context) {
-	r.IndentedJSON(http.StatusOK, books)
+	var books []book
+	err = Config.DB.Find(&books).Error; 
+	if err != nil {
+		r.AbortWithStatus(http.StatusNotFound)
+	} else {
+		r.JSON(http.StatusOK, books)
+	}
 }
 
 
@@ -69,19 +94,19 @@ func getAllBooks (r *gin.Context) {
 // @Failure 		404 {object} gin.H
 // @Failure 		500 {object} gin.H
 // @Router 			/books/{id} [get]
-// @OperationID     getBookById
+
 
 func getBookById (r *gin.Context) {
 	id := r.Param("id")
 
-	for _ , b := range books {
-		if(b.ID == id) {
-			r.IndentedJSON(http.StatusOK, b)
-			return
-		}
-	}
+	var oneBook book
+	err := Config.DB.Where("ID = ?", id).First(&oneBook).Error
 
-	r.IndentedJSON(http.StatusNotFound, gin.H{"message" : "Book with given ID not found!!"})
+	if err != nil {
+		r.AbortWithStatus(http.StatusNotFound)
+	} else {
+		r.JSON(http.StatusOK, oneBook)
+	}
 }
 
 // PostBooks 		is a swagger annotation for the POST request to add a new book to the server.
@@ -95,17 +120,17 @@ func getBookById (r *gin.Context) {
 // @Failure 		400 {object} gin.H
 // @Failure 		500 {object} gin.H
 // @Router 			/books [post]
-// @OperationID 	createBook
 
 func postBooks (r *gin.Context) {
 	var newBook book
-	
-	if err := r.BindJSON(&newBook); err != nil {
-		return
-	}
+	r.BindJSON(&newBook)
+	err := Config.DB.Create(newBook).Error
 
-	books = append(books, newBook)
-	r.IndentedJSON(http.StatusCreated, newBook)
+	if err != nil {
+		r.AbortWithStatus(http.StatusNotFound)
+	} else {
+		r.JSON(http.StatusOK, newBook)
+	}
 }
 
 // @Summary 		Update an existing book.
@@ -119,25 +144,17 @@ func postBooks (r *gin.Context) {
 // @Router 			/books/{id} [patch]
 
 func patchBooks (r *gin.Context) {
-	id := r.Param("id")
+	//id := r.Param("id")
 
     var newBook book
+	r.BindJSON(&newBook)
+	//err := nil
+
 	
-    if err := r.BindJSON(&newBook); err!= nil {
-        return
-    }
+		Config.DB.Save(&newBook)
 
-	for _ , b := range books {
-		if (b.ID == id) {
-			b.Title = newBook.Title
-			b.Author = newBook.Author
-			b.Price = newBook.Price
-			r.IndentedJSON(http.StatusOK, b)
-            return
-		}
-	}
-
-	r.IndentedJSON(http.StatusNotFound, gin.H{"message" : "Book with given ID not found!!"})
+		r.JSON(http.StatusOK, newBook)
+	
 }
 
 // @Summary 		Delete an existing book.
@@ -151,21 +168,10 @@ func patchBooks (r *gin.Context) {
 
 func deleteBookById (r *gin.Context) {
 	id := r.Param("id")
-	var delIndex = -1
+	var delBook book
 
-	for index, b := range books {
-		if(b.ID == id) {
-			delIndex = index
-			break;
-		}
-	}
+	Config.DB.Where("ID = ?", id).Delete(&delBook)
 
-	if(delIndex == -1) {
-		r.IndentedJSON(http.StatusNotFound, gin.H{"message" : "Book with given ID not found!!"})
-        return
-	}
-
-	books = append(books[:delIndex], books[delIndex+1:]...)
-
-	r.IndentedJSON(http.StatusOK, gin.H{"message" : "Book with given ID deleted!!"})
+	r.JSON(http.StatusOK, gin.H{"message" : "Book with given ID deleted!!"})
 }
+

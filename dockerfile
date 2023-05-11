@@ -6,7 +6,7 @@ WORKDIR /build
 
 COPY . .
 
-RUN go get -u github.com/gin-gonic/gin
+RUN go mod vendor
 
 EXPOSE 3000
 
