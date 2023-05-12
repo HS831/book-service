@@ -2,7 +2,10 @@ package Config
 
 import (
 	"fmt"
+	"os"
+	"log"
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
 )
 
 var DB *gorm.DB
@@ -16,12 +19,21 @@ type DBConfig struct {
 }
 
 func BuildDB () *DBConfig {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	var DB_PASSWORD = os.Getenv("DATABASE_PASSWORD")
+	var DB_NAME = os.Getenv("DATABASE_NAME")
+
 	dbConfig := DBConfig {
 		Host: "localhost",
 		Port: 3306,
 		User: "root",
-		Password: "YOUR MYSQL DATABASE PASSWORD",
-		DBName: "YOUR DATABASE NAME",
+		Password: DB_PASSWORD,
+		DBName: DB_NAME,
 	}
 
 	return &dbConfig
