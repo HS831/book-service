@@ -22,7 +22,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "v1.0.0",
 	Host:             "localhost:3000",
-	BasePath:         "",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Book Service API",
 	Description:      "A Book-Service API which contains all the basic CRUD functionality for any book-service application using Go and Gin Framework.",

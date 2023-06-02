@@ -1,13 +1,15 @@
 FROM golang:1.19
 
-RUN mkdir /build
+WORKDIR /app
 
-WORKDIR /build
+COPY go.mod go.sum ./
 
-COPY . .
+RUN go mod download
 
-RUN go mod vendor
+COPY src/ ./src/
+
+RUN go build -o ./bin/book-service-app ./src/
 
 EXPOSE 3000
 
-CMD ["go", "run", "main.go"]
+CMD ["./bin/book-service-app"]

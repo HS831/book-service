@@ -21,10 +21,7 @@ type book struct {
 	Price 	string			
 }
 
-// var books = []book {
-// 	{ID: "1", Title: "In Search of Lost Time", Author: "Marcel Proust", Price: "$399.90"},
-// 	{ID: "2", Title: "The Castle", Author: "Franz Kafka", Price: "$145.98"},
-// }
+
 var err error
 
 func connectDB() {
@@ -42,13 +39,13 @@ func connectDB() {
 // @description		A Book-Service API which contains all the basic CRUD functionality for any book-service application using Go and Gin Framework.
 
 // @host			localhost:3000
-
+// @BasePath			/
 func main () {
 	connectDB()
 
 	router := gin.Default()
 
-	// add swagger
+	// docs route
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.GET("/books", getAllBooks)
@@ -57,22 +54,20 @@ func main () {
 	router.PUT("/books/:id", patchBooks)
 	router.DELETE("/books/:id", deleteBookById)
 
-	router.Run("localhost:3000")
+		
 
 	defer Config.DB.Close()
 }
 
 // GetAllBooks 		is a swagger annotation for the GET request to fetch all the books from the server.
 // @Summary 		Get all books.
+// @ID				get-all-books
 // @Description 	This endpoint fetches all the books available on the server.
 // @Produce 		json
-// @Tags 			books
 // @Success 		200 {array} book "Successful operation"
 // @Failure 		404 {object} gin.H
 // @Failure 		500 {object} gin.H
-// @Router 			/books [get]
-
-
+// @Router 			books [get]
 func getAllBooks (r *gin.Context) {
 	var books []book
 	err = Config.DB.Find(&books).Error; 
@@ -86,16 +81,14 @@ func getAllBooks (r *gin.Context) {
 
 // GetBookByID 		is a swagger annotation for the GET request to fetch a single book by its ID from the server.
 // @Summary 		Get a single book.
+// @ID				get-book-by-id
 // @Description 	This endpoint fetches the book with the ID that matches the parameter.
 // @Param 			id path string true "The ID of the book to fetch"
 // @Produce 		json
-// @Tags 			books
 // @Success 		200 {object} book "Successful operation"
 // @Failure 		404 {object} gin.H
 // @Failure 		500 {object} gin.H
-// @Router 			/books/{id} [get]
-
-
+// @Router 			books/{id} [get]
 func getBookById (r *gin.Context) {
 	id := r.Param("id")
 
@@ -111,16 +104,15 @@ func getBookById (r *gin.Context) {
 
 // PostBooks 		is a swagger annotation for the POST request to add a new book to the server.
 // @Summary 		Add a new book.
+// @ID				post-book
 // @Description 	This endpoint adds a new book to the server.
-// @Accept 		json
+// @Accept 			json
 // @Produce 		json
-// @Tags 			books
 // @Param 			newBook body book true "New book details"
 // @Success 		201 {object} book "Successful operation"
 // @Failure 		400 {object} gin.H
 // @Failure 		500 {object} gin.H
-// @Router 			/books [post]
-
+// @Router 			books [post]
 func postBooks (r *gin.Context) {
 	var newBook book
 	r.BindJSON(&newBook)
@@ -134,6 +126,7 @@ func postBooks (r *gin.Context) {
 }
 
 // @Summary 		Update an existing book.
+// @ID				update-book-by-id
 // @Description 	Update the book with the ID that matches the parameter.
 // @Param 			id path string true "The ID of the book to update"
 // @Param 			book body book true "The updated book"
@@ -141,8 +134,7 @@ func postBooks (r *gin.Context) {
 // @Tags 			books
 // @Success 		200 {object} book "Successful operation"
 // @Failure 		404 {object} gin.H
-// @Router 			/books/{id} [patch]
-
+// @Router 			books/{id} [patch]
 func patchBooks (r *gin.Context) {
 	//id := r.Param("id")
 
@@ -158,14 +150,14 @@ func patchBooks (r *gin.Context) {
 }
 
 // @Summary 		Delete an existing book.
+// @ID				delete-book-by-id
 // @Description 	Delete the book with the ID that matches the parameter.
 // @Param 			id path string true "The ID of the book to delete"
 // @Produce 		json
 // @Tags 			books
 // @Success 		200 {object} gin.H "Successful operation"
 // @Failure 		404 {object} gin.H
-// @Router 			/books/{id} [delete]
-
+// @Router 			books/{id} [delete]
 func deleteBookById (r *gin.Context) {
 	id := r.Param("id")
 	var delBook book
