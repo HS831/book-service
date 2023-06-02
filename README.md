@@ -1,4 +1,4 @@
-# harshit-golang-bookservice
+## Book Service Application
 
 A RESTful web-api service which contains all the basic CRUD APIs for any book-service application. This project uses Go and Gin as it's web framework and is implemented on ports and adapters pattern (hexagonal architecture).
 
